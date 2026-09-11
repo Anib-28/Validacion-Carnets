@@ -14,8 +14,8 @@ namespace Backend.Api.Controllers
             {
                 Id = 1,
                 Codigo = "0001",
-                Nombre = "Juan Perez",
-                Carrera = "Ingeniería de Sistemas",
+                Nombre = "Widinson Guaraca",
+                Carrera = "Ingeniería en TI",
                 Estado = "Activo"
             };
             if(codigo != carnet.Codigo)
