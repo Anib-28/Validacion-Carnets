@@ -24,6 +24,7 @@ namespace Backend.Api
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
+
             app.MapControllers();
 
             app.Run();
