@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="CarnetEstudiantil.Api/CarnetEstudiantil.Api.csproj" Id="42039aec-3228-4584-963c-32ad93fd7f1e" />
+  <Project Path="CarnetEstudiantil.Persistencia/CarnetEstudiantil.Persistencia.csproj" Id="be84a775-f1fa-488f-82ff-406436df0c3f" />
+</Solution>

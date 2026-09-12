@@ -1,5 +1,5 @@
 
-namespace Backend.Api
+namespace CarnetEstudiantil.Api
 {
     public class Program
     {
@@ -24,6 +24,7 @@ namespace Backend.Api
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
+
 
             app.MapControllers();
 
