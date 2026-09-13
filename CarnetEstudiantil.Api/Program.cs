@@ -1,4 +1,5 @@
 using CarnetEstudiantil.Persistencia.Context;
+using CarnetEstudiantil.Persistencia.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace CarnetEstudiantil.Api
@@ -14,6 +15,8 @@ namespace CarnetEstudiantil.Api
                 options.UseSqlServer(
                     builder.Configuration.GetConnectionString("DefaultConnection")
                 ));
+
+            builder.Services.AddScoped<ICarnetRepository, CarnetRepository>();
 
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
