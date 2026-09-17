@@ -9,17 +9,15 @@ namespace CarnetEstudiantil.Api.Controllers
     public class CarnetsController : ControllerBase
     {
         private readonly ICarnetRepository _carnetRepository;
-
         public CarnetsController(ICarnetRepository carnetRepository)
         {
             _carnetRepository = carnetRepository;
         }
-
         [HttpGet("{codigoQR}")]
         public async Task<IActionResult> ObtenerCarnet(string codigoQR)
         {
             var carnet = await _carnetRepository.ObtenerCodigoQR(codigoQR);
-
+            // Si el código QR no existe en la base de datos
             if (carnet == null)
             {
                 return NotFound(new CarnetResponseDto
@@ -28,22 +26,19 @@ namespace CarnetEstudiantil.Api.Controllers
                     Mensaje = "Carnet no encontrado"
                 });
             }
-
+            // Si existe, el carnet está registrado en el sistema
             if (carnet.Estudiante == null)
             {
                 return NotFound(new CarnetResponseDto
                 {
                     Valido = false,
-                    Mensaje = "El carnet no tiene un estudiante asociado"
+                    Mensaje = "Carnet no válido"
                 });
             }
-
             var respuesta = new CarnetResponseDto
             {
-                Valido = carnet.Estado == "ACTIVO",
-                Mensaje = carnet.Estado == "ACTIVO"
-                    ? "Carnet válido"
-                    : "Carnet no válido",
+                Valido = true,
+                Mensaje = "Carnet auténtico",
 
                 IdCarnet = carnet.IdCarnet,
                 CodigoCarnet = carnet.CodigoCarnet,
@@ -68,4 +63,4 @@ namespace CarnetEstudiantil.Api.Controllers
             return Ok(respuesta);
         }
     }
-}
+}       
