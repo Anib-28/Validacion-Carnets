@@ -1,11 +1,13 @@
 ﻿using CarnetEstudiantil.Api.DTOs;
 using CarnetEstudiantil.Persistencia.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CarnetEstudiantil.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles = "Estudiante")]
     public class CarnetsController : ControllerBase
     {
         private readonly ICarnetRepository _carnetRepository;

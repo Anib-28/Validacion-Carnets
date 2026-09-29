@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using CarnetEstudiantil.Persistencia.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
+//using Microsoft.Identity.Client;
 
 namespace CarnetEstudiantil.Persistencia.Context
 {
