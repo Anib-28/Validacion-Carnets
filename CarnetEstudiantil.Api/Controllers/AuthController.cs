@@ -82,6 +82,9 @@ namespace CarnetEstudiantil.Api.Controllers
                     Mensaje = "Correo o contraseña incorrectos."
                 });
             }
+            //Temporal para pruebas, se debe eliminar en producción
+            Console.WriteLine(
+                $"LOGIN DEBUG - Rol BD: [{usuario.Rol}]");
 
             var token = GenerarToken(usuario);
 
@@ -98,13 +101,13 @@ namespace CarnetEstudiantil.Api.Controllers
 
         //Prueba
         [HttpPost("restablecer-prueba")]
-        public async Task<IActionResult> RestablecerPrueba()
+        public async Task<IActionResult> RestablecerPrueba(
+    [FromQuery] string correo)
         {
-            const string correo = "juan.perez@universidad.edu.ec";
             const string nuevaContrasena = "Prueba123!";
 
             var usuario = await _context.Usuarios
-                .FirstOrDefaultAsync(u => u.Correo == correo);
+                .FirstOrDefaultAsync(u => u.Correo == correo.Trim());
 
             if (usuario == null)
             {
@@ -122,7 +125,7 @@ namespace CarnetEstudiantil.Api.Controllers
 
             return Ok(new
             {
-                mensaje = "Contraseña de prueba actualizada correctamente."
+                mensaje = $"Contraseña de prueba actualizada para {usuario.Correo}."
             });
         }
         private string GenerarToken(
@@ -155,7 +158,7 @@ namespace CarnetEstudiantil.Api.Controllers
 
                 new Claim(
                     ClaimTypes.Role,
-                    usuario.Rol)
+                    usuario.Rol.Trim())
             };
 
             var key = new SymmetricSecurityKey(

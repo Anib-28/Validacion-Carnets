@@ -1,27 +1,34 @@
 ﻿using CarnetEstudiantil.Api.DTOs;
+
 using CarnetEstudiantil.Persistencia.Repositories;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace CarnetEstudiantil.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Estudiante")]
+    [Authorize]
     public class CarnetsController : ControllerBase
     {
         private readonly ICarnetRepository _carnetRepository;
+
         public CarnetsController(ICarnetRepository carnetRepository)
         {
             _carnetRepository = carnetRepository;
         }
 
+        // ============================================================
+        // CARNET DEL ESTUDIANTE AUTENTICADO
+        // ============================================================
+
         [HttpGet("mi-carnet")]
+        [Authorize(Roles = "ESTUDIANTE")]
         public async Task<IActionResult> ObtenerMiCarnet()
         {
-            var idUsuarioClaim = User.FindFirstValue(
-                ClaimTypes.NameIdentifier);
+            var idUsuarioClaim =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (!int.TryParse(idUsuarioClaim, out var idUsuario))
             {
@@ -31,32 +38,29 @@ namespace CarnetEstudiantil.Api.Controllers
                 });
             }
 
-            var carnet = await _carnetRepository
-                .ObtenerPorIdUsuario(idUsuario);
+            var carnet =
+                await _carnetRepository.ObtenerPorIdUsuario(idUsuario);
 
             if (carnet == null)
             {
-                return NotFound(new CarnetResponseDto
+                return NotFound(new
                 {
-                    Valido = false,
-                    Mensaje = "El usuario no tiene un carnet registrado."
+                    mensaje = "No se encontró un carnet para este estudiante."
                 });
             }
 
             if (carnet.Estudiante == null)
             {
-                return NotFound(new CarnetResponseDto
+                return NotFound(new
                 {
-                    Valido = false,
-                    Mensaje = "Carnet no válido."
+                    mensaje = "El carnet no tiene información del estudiante."
                 });
             }
 
-            var respuesta = new CarnetResponseDto
+            return Ok(new CarnetResponseDto
             {
                 Valido = true,
-                Mensaje = "Carnet auténtico",
-
+                Mensaje = "Carnet encontrado correctamente.",
                 IdCarnet = carnet.IdCarnet,
                 CodigoCarnet = carnet.CodigoCarnet,
                 CodigoQR = carnet.CodigoQR,
@@ -75,38 +79,40 @@ namespace CarnetEstudiantil.Api.Controllers
                     FotoUrl = carnet.Estudiante.FotoUrl,
                     Estado = carnet.Estudiante.Estado
                 }
-            };
-
-            return Ok(respuesta);
+            });
         }
+
+        // ============================================================
+        // VERIFICAR CARNET MEDIANTE CÓDIGO QR
+        // ============================================================
 
         [HttpGet("{codigoQR}")]
+        [Authorize(Roles = "ESTUDIANTE,VALIDADOR,ADMIN")]
         public async Task<IActionResult> ObtenerCarnet(string codigoQR)
         {
-            var carnet = await _carnetRepository.ObtenerCodigoQR(codigoQR);
-            // Si el código QR no existe en la base de datos
+            var carnet =
+                await _carnetRepository.ObtenerCodigoQR(codigoQR);
+
             if (carnet == null)
             {
-                return NotFound(new CarnetResponseDto
+                return NotFound(new
                 {
-                    Valido = false,
-                    Mensaje = "Carnet no encontrado"
+                    mensaje = "Carnet no encontrado."
                 });
             }
-            // Si existe, el carnet está registrado en el sistema
+
             if (carnet.Estudiante == null)
             {
-                return NotFound(new CarnetResponseDto
+                return NotFound(new
                 {
-                    Valido = false,
-                    Mensaje = "Carnet no válido"
+                    mensaje = "El carnet no tiene información del estudiante."
                 });
             }
-            var respuesta = new CarnetResponseDto
+
+            return Ok(new CarnetResponseDto
             {
                 Valido = true,
-                Mensaje = "Carnet auténtico",
-
+                Mensaje = "Carnet encontrado correctamente.",
                 IdCarnet = carnet.IdCarnet,
                 CodigoCarnet = carnet.CodigoCarnet,
                 CodigoQR = carnet.CodigoQR,
@@ -125,9 +131,7 @@ namespace CarnetEstudiantil.Api.Controllers
                     FotoUrl = carnet.Estudiante.FotoUrl,
                     Estado = carnet.Estudiante.Estado
                 }
-            };
-
-            return Ok(respuesta);
+            });
         }
     }
-}       
+}
