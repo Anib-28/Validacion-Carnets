@@ -2,6 +2,7 @@
 using CarnetEstudiantil.Persistencia.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace CarnetEstudiantil.Api.Controllers
 {
@@ -15,6 +16,70 @@ namespace CarnetEstudiantil.Api.Controllers
         {
             _carnetRepository = carnetRepository;
         }
+
+        [HttpGet("mi-carnet")]
+        public async Task<IActionResult> ObtenerMiCarnet()
+        {
+            var idUsuarioClaim = User.FindFirstValue(
+                ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(idUsuarioClaim, out var idUsuario))
+            {
+                return Unauthorized(new
+                {
+                    mensaje = "No se pudo identificar al usuario."
+                });
+            }
+
+            var carnet = await _carnetRepository
+                .ObtenerPorIdUsuario(idUsuario);
+
+            if (carnet == null)
+            {
+                return NotFound(new CarnetResponseDto
+                {
+                    Valido = false,
+                    Mensaje = "El usuario no tiene un carnet registrado."
+                });
+            }
+
+            if (carnet.Estudiante == null)
+            {
+                return NotFound(new CarnetResponseDto
+                {
+                    Valido = false,
+                    Mensaje = "Carnet no válido."
+                });
+            }
+
+            var respuesta = new CarnetResponseDto
+            {
+                Valido = true,
+                Mensaje = "Carnet auténtico",
+
+                IdCarnet = carnet.IdCarnet,
+                CodigoCarnet = carnet.CodigoCarnet,
+                CodigoQR = carnet.CodigoQR,
+                FechaEmision = carnet.FechaEmision,
+                FechaExpiracion = carnet.FechaExpiracion,
+                Estado = carnet.Estado,
+
+                Estudiante = new EstudianteCarnetDto
+                {
+                    IdEstudiante = carnet.Estudiante.IdEstudiante,
+                    Cedula = carnet.Estudiante.Cedula,
+                    Nombres = carnet.Estudiante.Nombres,
+                    Apellidos = carnet.Estudiante.Apellidos,
+                    Carrera = carnet.Estudiante.Carrera,
+                    Semestre = carnet.Estudiante.Semestre,
+                    FotoUrl = carnet.Estudiante.FotoUrl,
+                    Estado = carnet.Estudiante.Estado
+                }
+            };
+
+            return Ok(respuesta);
+        }
+
         [HttpGet("{codigoQR}")]
         public async Task<IActionResult> ObtenerCarnet(string codigoQR)
         {

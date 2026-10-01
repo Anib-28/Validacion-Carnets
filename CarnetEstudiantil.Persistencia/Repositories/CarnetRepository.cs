@@ -10,15 +10,26 @@ namespace CarnetEstudiantil.Persistencia.Repositories
     public class CarnetRepository : ICarnetRepository
     {
         private readonly AppDbContext _context;
+
         public CarnetRepository(AppDbContext context)
         {
             _context = context;
         }
+
         public async Task<Carnet?> ObtenerCodigoQR(string codigoQR)
         {
             return await _context.Carnets
                 .Include(c => c.Estudiante)
                 .FirstOrDefaultAsync(c => c.CodigoQR == codigoQR);
+        }
+
+        public async Task<Carnet?> ObtenerPorIdUsuario(int idUsuario)
+        {
+            return await _context.Carnets
+                .Include(c => c.Estudiante)
+                .FirstOrDefaultAsync(
+                    c => c.Estudiante != null &&
+                         c.Estudiante.IdUsuario == idUsuario);
         }
     }
 }

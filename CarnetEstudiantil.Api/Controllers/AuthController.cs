@@ -73,7 +73,7 @@ namespace CarnetEstudiantil.Api.Controllers
                     usuario,
                     request.Contrasena,
                     usuario.Contrasena);
-
+            
             if (!contraseñaCorrecta)
             {
                 return Unauthorized(new LoginResponseDto
@@ -96,6 +96,35 @@ namespace CarnetEstudiantil.Api.Controllers
             });
         }
 
+        //Prueba
+        [HttpPost("restablecer-prueba")]
+        public async Task<IActionResult> RestablecerPrueba()
+        {
+            const string correo = "juan.perez@universidad.edu.ec";
+            const string nuevaContrasena = "Prueba123!";
+
+            var usuario = await _context.Usuarios
+                .FirstOrDefaultAsync(u => u.Correo == correo);
+
+            if (usuario == null)
+            {
+                return NotFound(new
+                {
+                    mensaje = "Usuario no encontrado."
+                });
+            }
+
+            usuario.Contrasena = _passwordService.HashearContraseña(
+                usuario,
+                nuevaContrasena);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                mensaje = "Contraseña de prueba actualizada correctamente."
+            });
+        }
         private string GenerarToken(
             CarnetEstudiantil.Persistencia.Models.Usuario usuario)
         {
